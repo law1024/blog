@@ -1,0 +1,85 @@
+body {
+    font-size: 14px;
+    font-family: 'Microsoft YaHei';
+}
+a {
+    text-decoration: none;
+}
+.share-icon {
+    width: 0;
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+.header {
+    padding: 45px 20px 0;
+    text-align: center;
+}
+.photo {
+    display: inline-block;
+    box-sizing: border-box;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #666;
+}
+.photo:hover {
+    border-color: #3c80b5;
+
+    -webkit-animation-name: wobble;
+       -moz-animation-name: wobble;
+            animation-name: wobble;
+
+  -webkit-animation-duration: 1.2s;
+     -moz-animation-duration: 1.2s;
+          animation-duration: 1.2s;
+
+  -webkit-animation-timing-function: ease-in-out;
+     -moz-animation-timing-function: ease-in-out;
+          animation-timing-function: ease-in-out;
+   
+  -webkit-animation-iteration-count: 1;
+     -moz-animation-iteration-count: 1;
+          animation-iteration-count: 1;
+}
+.photo img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+.photo {
+    margin-bottom: 30px;
+}
+.nav-item {
+    display: inline-block;
+    margin: 0 15px;
+    color: #333;
+}
+.time {
+    font-size: 12px;
+    color: #999;
+}
+.title {
+    font-weight: bold;
+}
+@-webkit-keyframes wobble {
+  0% {
+    opacity: 0;
+    -webkit-transform: rotateY(-180deg) translateZ(0);
+            transform: rotateY(-180deg) translateZ(0);
+  }
+  60% {
+    -webkit-transform: rotateY(30deg) translateZ(0);
+            transform: rotateY(30deg) translateZ(0);
+  }
+  80% {
+    -webkit-transform: rotateY(-10deg) translateZ(0);
+            transform: rotateY(-10deg) translateZ(0);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: rotateY(0) translateZ(0);
+            transform: rotateY(0) translateZ(0);
+  }
+}
