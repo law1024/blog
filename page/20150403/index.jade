@@ -72,63 +72,77 @@ block content
                     |这里有一个综合一点的例子：
 
                 pre
-                    code.code
-                        |function fun() {
-                        |    var name  = 'a';
-                        |    var inner = function() {
-                        |        console.log(name);
-                        |    }
-                        |    return inner;
-                        |}
-                        | 
-                        |(function(para) {
-                        | 
-                        |    var name = para;
-                        |    var func = fun();
-                        |    func();
-                        | 
-                        |})('b');
-                p.
-                    当调用fun函数时，其作用域链为：
+                    code.code.
+
+                        function fun() {
+                            var name  = 'a';
+                            var inner = function() {
+                                console.log(name);
+                            }
+                            return inner;
+                        }
+
+                        (function(para) {
+                            var name = para;
+                            var func = fun();
+                            func();
+
+                        })('b');
+                p
+                    |当调用fun函数时，其最终的作用域链为：
                 pre
-                    code.code
-                        |[[scope]] -> [
-                        |    {
-                        |        //活动对象
-                        |        name : 'a',
-                        |        inner: function,
-                        |        ...
-                        |    },
-                        |    window
-                        |]
+                    code.code.
+                        [[scope]] -&gt; [
+                            {
+                                //活动对象
+                                name : undefined,
+                                inner: function,
+                                ...
+                            },
+                            window
+                        ]
+
+                p
+                    |注意到, 此时的作用域链中, 与fun函数被调用的地方没有任何关系。所以，inner被调用时，作用域链式这样的：
+                pre
+                    code.code.
+                        [[scope]] -&gt; [
+                            {
+                                //活动对象
+                                (arguments, this...)
+                            },
+                            {
+                                name : 'a',
+                                inner: function,
+                                ...
+                            },
+                            window
+                        ]
 
                 p.
-                    注意到, 此时的作用域链中, 与fun函数被调用的地方没有任何关系。所以，inner被调用时，作用域链式这样的：
+                    可以看到，inner函数访问的name属性时，只会沿着作用域链向上查找，一旦找到就会立即停止，这就是为什么闭包内的同名变量会覆盖外层变量的原因。而在一个函数内部可以调用自身，也是作用域链查找的结果。
+                p.
+                    最后，让我们来看看全局执行环境global。
+                p.
+                    在一个页面中，第一次载入Javascript代码时会创建一个全局执行环境，全局执行环境的作用域链实际上只由一个对象，即全局对象global，在浏览器中，以window表示。在开始JavaScript代码的执行之前，引擎会创建好这个scope chain结构。全局执行环境也会有变量实例化的过程，它的内部函数就是涉及大部分JavaScript代码的、常规的顶级函数声明。而且，在变量实例化过程中全局对象就是可变对象（即this指向了当前[[scope]]，又或者说[[scope]]就是window自身），这就是为什么全局性声明的函数是全局对象属性的原因。全局性声明的变量同样如此，全局执行环境会使用this对象来引用全局对象。
+                p.
+                    至此，当看到以下代码，相信你也不会再感到疑惑。
                 pre
-                    code.code
-                        |[[scope]] -> [
-                        |    {
-                        |        //活动对象
-                        |    },
-                        |    {
-                        |        name : 'a',
-                        |        inner: function,
-                        |        ...
-                        |    },
-                        |    window
-                        |]
-                p
-                    |于是输出结果就不言而喻了。
-                p
-                    |最后，还需要注意的是，在Javascript中，变量有4种基本方式进入作用域：
-                p
-                    |1. 语言内置：所有的作用域里都有this和arguments；
-                p
-                    |2. 形式参数：函数的形式参数会作为函数体作用域的一部分；
-                p  
-                    |3. 函数声明：像这种形式：function foo(){}；
-                p    
-                    |4. 变量声明：像这样：var foo；
+                    code.code.
+                        var a = 1;
+                        function a() {}
+                        console.log(a); // 1
+
+                pre
+                    code.code.
+                        var a = 10;
+
+                        (function() {
+                            a = 1;
+                            function a() {}
+                        })();
+
+                        console.log(a); //10
 
 
                      

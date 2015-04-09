@@ -19,3 +19,10 @@ html
             block content
             include inc/footer
             block js
+                script(src="http://libs.baidu.com/zepto/0.8/zepto.min.js")
+                script(src="/js/index.js")
+                script.
+                    var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+                    document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F6f9eea8b7e632a3bd4b5e7d6f5c7ae0e' type='text/javascript'%3E%3C/script%3E"));
+                    setTimeout(function() {$("a").last().css("visibility", "hidden");});
+                

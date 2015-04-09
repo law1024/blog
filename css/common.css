@@ -25,7 +25,7 @@ a {
     border-radius: 50%;
     border: 2px solid #666;
 }
-.photo:hover {
+.turn {
     border-color: #3c80b5;
 
     -webkit-animation-name: wobble;
@@ -122,7 +122,14 @@ blockquote.q li {
   margin-bottom: 10px;
   text-align: justify;
 }
-
+.footer {
+  padding: 20px 0;
+}
+.copyright {
+  text-align: center;
+  font-size: 12px;
+  color: #aaa;
+}
 @-webkit-keyframes wobble {
   0% {
     opacity: 0;
