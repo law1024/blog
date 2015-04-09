@@ -2,20 +2,133 @@ extends ../../layout.jade
 
 block title
     title
-        |Javascript的作用域与this关键字
+        |Javascript作用域和变量提升
 
 block content
     section.section
         article.article
             address.time.
-                2015-04-03
+                2015-04-08
             h2.title
-                |Javascript的作用域与this关键字
+                |Javascript作用域和变量提升
             .main-content
-                p.
-                    这是一道关于Javascript this关键字的题目，如果你还不能很轻易的得出正确答案，那么本文也许可以帮到你。
+                p
+                    |Javascript语言中有很多令人疑惑的特性，用法稍有不当，就会让人陷入无尽的痛苦之中。所以，更多时候，掌握它是为了避免使用它。看一个简单的例子。
+                pre
+                    code.code.
+                        var a = 1;
+                        function fun() {
+                            if (!a) {
+                                var a = 10;
+                            }
+                            console.log(a);
+                        }
+                        
+                p
+                    |运行结果是10。这是一种被称为 Hoisting (变量提升)的预编译机制。想要理解它，必须先对Javascript作用域有所了解。JS权威指南中有一句很精辟的描述:
+                blockquote.q
+                    |JavaScript中的函数运行在它们被定义的作用域里，而不是它们被执行的作用域里。
+                p
+                    |在JS中，作用域的概念和其他语言差不多， 在每次调用一个函数的时候 ，就会进入一个函数内的作用域，当从函数返回以后，就返回调用前的作用域。Javascript使用链式结构对作用域进行管理。具体过程是这样的（ECMA262中所述）：
+                blockquote.q
+                    ul
+                        li
+                            |任何执行上下文时刻的作用域, 都是由作用域链(scope chain)来实现。
+                        li
+                            |在一个函数被定义的时候, 会将它定义时刻的scope chain链接到这个函数对象的[[scope]]属性上。
+                        li
+                            |在一个函数对象被调用时，会创建一个活动对象(也就是一个对象), 然后对于每一个函数的形参，都命名为该活动对象的同名属性, 并将这个活动对象添加到此作用域链的最前端。
+                p
+                    |Javascript在执行预编译的过程中，一个非常重要的事情就是确定每一个函数的作用域链，也就是，函数可以访问到哪些变量，不能访问哪些变量。
+                p
+                    |在某一个函数被真正执行的时候，这个作用域链会被unshift进一个活动对象（执行环境），该活动对象开始时会拥有一个arguments属性，这是一个类似数组的对象，它以整数索引的数组成员一一对应地保存着调用函数时所传递的参数。
+                p
+                    |接着，函数的[[scope]]属性将会指向这个活动对象，也就是指向了整个作用域链。
+                p
+                    |之后会发生由ECMA262中所谓活动对象完成的变量实例化(Variable Instatiation)的过程。此时会将函数的形式参数创建为可变对象的命名属性，如果调用函数时传递的参数与形式参数一致，则将相应参数的值赋给这些命名属性（否则，会给命名属性赋 undefined 值）。
+                p
+                    |对于定义的内部函数，会以其声明时所用名称为可变对象创建同名属性，而相应的内部函数则被创建为函数对象并指定给该属性。变量实例化的最后一步是将在函数内部声明的所有局部变量创建为可变对象的命名属性。注：在这个过程中，除了实际参数有值外和函数定义外，其它都被“预解析”为undefined值。
+                p
+                    |最后，还会为this关键字赋值。
+                p
+                    |至此，作用域链构建完毕。进入第二步：在函数体内，顺序执行代码。
+                p
+                    |当执行到诸如var a = 'hello world'时，才会发生计算赋值表达式的过程，这时，才会将活动对象中key为a的值从undefined设置为'hello world'。
+                p
+                    |不难看出，当我们在函数内部访问变量时，其实就是沿着作用域链向上寻找变量的过程。而这也说明了一点：在Javascript中，任何通过var来显示声明的变量其实都会被赋值给某一个对象的属性，在函数中，这个对象就是其活动对象。
+                p
+                    |理解了以上几点，就可以很容易的明白为什么开始的那段代码执行结果会是10了，它与以下代码是等价的：
+                pre
+                    code.code.
+                        var a = 1;
+                        function fun() {
+                            var a = undefined;
+                            if (!a) {
+                                a = 10;
+                            }
+                            console.log(a);
+                        }
+                p
+                    |这里有一个综合一点的例子：
+
                 pre
                     code.code
-                        |(function() {
-                        |    console.log(111);var a = document.getElementById('fsafewfra');
-                        |})();
+                        |function fun() {
+                        |    var name  = 'a';
+                        |    var inner = function() {
+                        |        console.log(name);
+                        |    }
+                        |    return inner;
+                        |}
+                        | 
+                        |(function(para) {
+                        | 
+                        |    var name = para;
+                        |    var func = fun();
+                        |    func();
+                        | 
+                        |})('b');
+                p.
+                    当调用fun函数时，其作用域链为：
+                pre
+                    code.code
+                        |[[scope]] -> [
+                        |    {
+                        |        //活动对象
+                        |        name : 'a',
+                        |        inner: function,
+                        |        ...
+                        |    },
+                        |    window
+                        |]
+
+                p.
+                    注意到, 此时的作用域链中, 与fun函数被调用的地方没有任何关系。所以，inner被调用时，作用域链式这样的：
+                pre
+                    code.code
+                        |[[scope]] -> [
+                        |    {
+                        |        //活动对象
+                        |    },
+                        |    {
+                        |        name : 'a',
+                        |        inner: function,
+                        |        ...
+                        |    },
+                        |    window
+                        |]
+                p
+                    |于是输出结果就不言而喻了。
+                p
+                    |最后，还需要注意的是，在Javascript中，变量有4种基本方式进入作用域：
+                p
+                    |1. 语言内置：所有的作用域里都有this和arguments；
+                p
+                    |2. 形式参数：函数的形式参数会作为函数体作用域的一部分；
+                p  
+                    |3. 函数声明：像这种形式：function foo(){}；
+                p    
+                    |4. 变量声明：像这样：var foo；
+
+
+                     
